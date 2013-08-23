@@ -22,6 +22,9 @@
 
 package org.pentaho.hadoop.shim.cdh42;
 
+import java.lang.reflect.Method;
+
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.compress.SnappyCodec;
 import org.pentaho.hadoop.shim.common.CommonSnappyShim;
 
@@ -37,8 +40,16 @@ public class SnappyShim extends CommonSnappyShim {
     ClassLoader cl = Thread.currentThread().getContextClassLoader();
     Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
     try {
-      return SnappyCodec.isNativeCodeLoaded();
+      Method m = SnappyCodec.class.getMethod("isNativeSnappyLoaded",Configuration.class);
+      try {
+      Boolean b = (Boolean)m.invoke(null,new Configuration());
+      return b;
+      }
+      catch(Throwable t) {
+        return SnappyCodec.isNativeCodeLoaded(); 
+      }
     } catch (Throwable t) {
+      t.printStackTrace(System.err);
       return false;
     } finally {
       Thread.currentThread().setContextClassLoader(cl);
