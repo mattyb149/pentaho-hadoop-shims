@@ -78,32 +78,15 @@ public class MapRSuperUserKerberosConsumer implements
         public Properties getConfigProperties() {
           return props;
         }
-
+        
+        @Override
         public LoginContext createLoginContext() throws AuthenticationConsumptionException {
-            System.setProperty( "hadoop.login", "hadoop_default" );
-            final LoginContext loginContext;
-            try {
-              if ( Const.isEmpty( authenticationProvider.getPassword() ) ) {
-                if ( !Const.isEmpty( authenticationProvider.getKeytabLocation() ) ) {
-                  loginContext =
-                      kerberosUtil.getLoginContextFromKeytab( authenticationProvider.getPrincipal(),
-                          authenticationProvider.getKeytabLocation() );
-                } else {
-                  loginContext = kerberosUtil.getLoginContextFromKerberosCache( authenticationProvider.getPrincipal() );
-                }
-              } else {
-                loginContext =
-                    kerberosUtil.getLoginContextFromUsernamePassword( authenticationProvider.getPrincipal(),
-                        authenticationProvider.getPassword() );
-              }
-              loginContext.login();
-            } catch ( LoginException e ) {
-              throw new AuthenticationConsumptionException( e );
-            }
-            
-            return loginContext;
+          try {
+            return kerberosUtil.createLoginContext( authenticationProvider );
+          } catch ( LoginException e ) {
+            throw new AuthenticationConsumptionException( e );
           }
-        };
+        }
       };
     } catch ( LoginException e ) {
       throw new AuthenticationConsumptionException( e );
