@@ -1,12 +1,15 @@
 package org.pentaho.hadoop.shim.mapr31.authentication;
 
+import java.security.Principal;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
+import java.util.ArrayList;
 
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
+import org.apache.hadoop.security.User;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.auth.AuthenticationConsumerPlugin;
 import org.pentaho.di.core.auth.AuthenticationConsumerType;
@@ -77,7 +80,7 @@ public class MapRSuperUserKerberosConsumer implements
             final LoginContext loginContext;
             try {
               if ( Const.isEmpty( authenticationProvider.getPassword() ) ) {
-                if ( Const.isEmpty( authenticationProvider.getKeytabLocation() ) ) {
+                if ( !Const.isEmpty( authenticationProvider.getKeytabLocation() ) ) {
                   loginContext =
                       kerberosUtil.getLoginContextFromKeytab( authenticationProvider.getPrincipal(),
                           authenticationProvider.getKeytabLocation() );
@@ -93,6 +96,7 @@ public class MapRSuperUserKerberosConsumer implements
             } catch ( LoginException e ) {
               throw new AuthenticationConsumptionException( e );
             }
+            
             return loginContext;
           }
         };
